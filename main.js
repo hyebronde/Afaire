@@ -151,7 +151,14 @@ var A = {
   edit: function (el) { var it = byId(S.items, el.dataset.id); itemSheet(it, function (d) { saveItem(it.id, d); }, function () { S.items = S.items.filter(function (x) { return x.id !== it.id; }); save(); rerender(); }); },
   addOn: function (el) { itemSheet({ type: el.dataset.t || 'event', date: el.dataset.v || '' }, function (d) { saveItem(null, d); toast('Added'); }); },
   mon: function (el) { var y = +V.calMonth.slice(0, 4), m = +V.calMonth.slice(5, 7) - 1 + +el.dataset.v; var d = new Date(y, m, 1); V.calMonth = d.getFullYear() + '-' + pad(d.getMonth() + 1); rerender(); },
-  day: function (el) { V.calSel = el.dataset.v; rerender(); },
+  day: function (el) { V.calSel = el.dataset.v; V.calMonth = V.calSel.slice(0, 7); rerender(); },
+  wmode: function (el) { V.wmode = el.dataset.v; V.calMonth = V.calSel.slice(0, 7); rerender(); },
+  shift: function (el) {
+    var n = +el.dataset.v;
+    if ((V.wmode || 'w') === 'w') { V.calSel = addDays(V.calSel, 7 * n); V.calMonth = V.calSel.slice(0, 7); }
+    else { var y = +V.calMonth.slice(0, 4), mo = +V.calMonth.slice(5, 7) - 1 + n, d = new Date(y, mo, 1); V.calMonth = d.getFullYear() + '-' + pad(d.getMonth() + 1); var dm = Math.min(+V.calSel.slice(8, 10), new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()); V.calSel = V.calMonth + '-' + pad(dm); }
+    rerender();
+  },
   toToday: function () { V.calSel = today(); V.calMonth = today().slice(0, 7); rerender(); },
   itype: function (el) {
     var f = el.closest('form'); f.elements.type.value = el.dataset.v;
@@ -286,7 +293,7 @@ function resizeImage(file, max) {
 }
 
 /* ---------------- start ---------------- */
-var APP_VERSION = '1.3';
+var APP_VERSION = '1.4';
 if ('serviceWorker' in navigator) {
   var swReg = null, reloaded = false;
   navigator.serviceWorker.register('sw.js').then(function (r) { swReg = r; r.update(); }).catch(function () {});

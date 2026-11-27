@@ -36,7 +36,7 @@ function topbar(title, back, right) {
 function ck(on) { return '<span class="ck' + (on ? ' on' : '') + '">' + ic('check') + '</span>'; }
 function big(v, u) { return '<span class="big">' + v + (u ? '<small>' + u + '</small>' : '') + '</span>'; }
 
-var V = { planTab: 'day', calMonth: today().slice(0, 7), calSel: today(), flip: false, newText: '', newImage: null, found: null, br: null, moodPick: null, busy: false };
+var V = { planTab: 'day', calMonth: today().slice(0, 7), calSel: today(), flip: false, newText: '', newImage: null, found: null, br: null, moodPick: null, busy: false, wmode: 'w' };
 var MOODS = [['calm', 'Calm'], ['happy', 'Happy'], ['excited', 'Excited'], ['stressed', 'Stressed']];
 var MOOD_DOT = { calm: 'a-sky', happy: 'a-gold', excited: 'a-coral', stressed: 'a-violet' };
 var MOOD_TINT = { calm: '#BFDDEB', happy: '#FFD9A0', excited: '#FFB5A8', stressed: '#D4C9F5' };
@@ -64,21 +64,53 @@ function agendaRows(s) {
   return h;
 }
 function viewToday() {
-  var t = today(), mood = S.moods[t], y = +V.calMonth.slice(0, 4), m = +V.calMonth.slice(5, 7) - 1;
-  var bd = S.breath[t] || {}, bc = ['morning', 'midday', 'evening'].filter(function (k) { return bd[k]; }).length, slept = S.sleep[t] || S.sleep[addDays(t, -1)];
-  var ci = cardOfDay(t), kept = S.kept.indexOf(ci) >= 0, sel = V.calSel, n = itemsOn(sel).length;
-  var h = topbar('Today', null, '<a class="rp glass" href="#mood" style="height:40px;padding:0 14px 0 8px;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:300;border-radius:20px"><span class="dotA ' + (mood ? MOOD_DOT[mood.mood] : 'a-sky') + '" style="width:24px;height:24px;border-radius:50%"></span>' + (mood ? MOODS.filter(function (x) { return x[0] === mood.mood; })[0][1] : 'Check in') + '</a>');
-  h += '<div class="sub">' + fmtLong(t) + '</div>';
-  h += '<div class="glass mt16" style="padding:12px 10px 10px"><div style="display:flex;justify-content:space-between;align-items:center;padding:0 6px 8px"><span style="font-size:17px">' + MONTHS[m] + ' <span class="muted" style="font-weight:300">' + y + '</span></span><span style="display:flex;gap:6px">' +
-    (V.calMonth !== t.slice(0, 7) ? '<button class="chip w rp" data-a="toToday" style="height:36px;padding:0 12px;border-radius:18px">Today</button>' : '') +
-    '<button class="circle glass rp" style="width:36px;height:36px" data-a="mon" data-v="-1" aria-label="Previous month">' + ic('left', 16) + '</button><button class="circle glass rp" style="width:36px;height:36px" data-a="mon" data-v="1" aria-label="Next month">' + ic('chev', 16) + '</button></span></div>' + monthGrid(true) + '</div>';
-  h += '<div class="glass list mt"><div class="label" style="margin:6px 10px 4px"><span>' + (sel === t ? 'Today · ' : '') + fmtShort(sel) + ' ' + MON[parseYmd(sel).getMonth()] + (n ? ' · ' + n + ' planned' : '') + '</span><span style="display:flex;align-items:center;gap:8px">' + '<button class="chip rp" data-a="addOn" data-v="' + sel + '">' + ic('plus', 14, 'stroke-width:2.2') + 'Add</button></span></div>' + agendaRows(sel) + '</div>';
-  function chip(href, icon, aura, label, val) { return '<a class="rp glass" href="#' + href + '" style="display:flex;align-items:center;gap:8px;height:56px;padding:0 10px;border-radius:28px"><span class="dotA ' + aura + '" style="width:36px;height:36px;border-radius:50%;display:grid;place-items:center;flex:none;color:#fff">' + ic(icon, 16) + '</span><span style="min-width:0"><span style="display:block;font-size:11px;font-weight:300;color:var(--muted)">' + label + '</span><span style="display:block;font-size:14px;white-space:nowrap">' + val + '</span></span></a>'; }
-  h += '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px">' + chip('breathe', 'wind', 'a-teal', 'Breathe', bc + '/3') + chip('pills', 'pill', 'a-gold', 'Pills', S.pills.length ? pillsTaken(t) + '/' + S.pills.length : 'Add') + chip('sleep', 'moon', 'a-night', 'Sleep', slept ? dur(sleepMinutes(slept)) : 'Log') + '</div>';
-  h += '<button class="flip aura a-violet rp mt' + (V.flip ? ' on' : '') + '" data-a="flip" aria-label="Today’s card, tap to flip">' +
+  var t = today(), sel = V.calSel, sd = parseYmd(sel), mode = V.wmode || 'w', dn = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  var has = function (d) { return itemsOn(d).length > 0; };
+  var h = '<section class="wh" aria-label="Calendar">';
+  h += '<div class="hd"><div class="sg" role="group" aria-label="View"><button class="rp' + (mode === 'w' ? ' on' : '') + '" data-a="wmode" data-v="w" aria-pressed="' + (mode === 'w') + '">Weekly</button><button class="rp' + (mode === 'm' ? ' on' : '') + '" data-a="wmode" data-v="m" aria-pressed="' + (mode === 'm') + '">Monthly</button></div>' +
+    '<button class="ib rp" data-a="toToday" aria-label="Go to today">' + ic('cal', 20) + '</button></div>';
+  if (mode === 'w') {
+    h += '<div class="big"><span>' + MONTHS[sd.getMonth()] + '</span><span>' + sd.getDate() + '</span></div>';
+    var mon = mondayOf(sel);
+    h += '<div class="whl"><div class="arc" style="top:50px;height:66px;border-top:1px solid rgba(255,255,255,.3)"></div><div class="arc" style="top:104px;height:20px;border-top:2px dotted rgba(255,255,255,.45)"></div><div class="days">';
+    for (var i = 0; i < 7; i++) {
+      var d = addDays(mon, i), off = i - 3, dd = parseYmd(d);
+      h += '<button class="rp' + (d === sel ? ' on' : '') + (d === t ? ' td' : '') + '" data-a="day" data-v="' + d + '" aria-label="' + fmtLong(d) + '" style="transform:translateY(' + (off * off * 3.2) + 'px) rotate(' + (off * 2.2) + 'deg)"><span class="l">' + dn[i] + '</span><span class="n">' + dd.getDate() + '</span><i class="dot' + (has(d) ? ' y' : '') + '"></i></button>';
+    }
+    h += '</div></div>';
+  } else {
+    var y = +V.calMonth.slice(0, 4), m = +V.calMonth.slice(5, 7) - 1, first = new Date(y, m, 1), st = (first.getDay() + 6) % 7, days = new Date(y, m + 1, 0).getDate();
+    h += '<div class="big s"><span>' + MONTHS[m] + '</span><span>' + (V.calMonth === sel.slice(0, 7) ? sd.getDate() : y) + '</span></div>';
+    h += '<div class="mg dn">' + dn.map(function (x) { return '<span>' + x + '</span>'; }).join('') + '</div><div class="mg">';
+    for (var k = 0; k < st; k++) h += '<span></span>';
+    for (var n = 1; n <= days; n++) {
+      var s2 = y + '-' + pad(m + 1) + '-' + pad(n);
+      h += '<button class="rp' + (s2 === sel ? ' on' : '') + (s2 === t ? ' td' : '') + '" data-a="day" data-v="' + s2 + '" aria-label="' + fmtLong(s2) + '"><span>' + n + '</span><i class="' + (has(s2) ? 'y' : '') + '"></i></button>';
+    }
+    h += '</div>';
+  }
+  h += '<div class="ft"><div class="nv"><button class="rp" data-a="shift" data-v="-1" aria-label="' + (mode === 'w' ? 'Previous week' : 'Previous month') + '">' + ic('left', 18) + '</button><button class="rp" data-a="shift" data-v="1" aria-label="' + (mode === 'w' ? 'Next week' : 'Next month') + '">' + ic('chev', 18) + '</button></div>' +
+    '<button class="ne rp" data-a="addOn" data-v="' + sel + '">' + ic('plus', 18, 'stroke-width:2') + 'New event</button></div></section>';
+  var list = itemsOn(sel), tasks = list.filter(function (x) { return x.type === 'task'; }), evs = list.filter(function (x) { return x.type !== 'task'; });
+  var left = tasks.filter(function (x) { return !x.done; }).length;
+  h += '<div class="tl todo"><div class="th"><span>To-do</span><small>' + (tasks.length ? left + ' left' : '') + '</small></div>';
+  if (!tasks.length) h += '<div class="row empty" style="min-height:0">No tasks for this day</div>';
+  tasks.forEach(function (x) {
+    h += '<div class="row' + (x.done ? ' done' : '') + '" style="min-height:52px"><button class="rp" data-a="toggle" data-id="' + x.id + '" aria-pressed="' + !!x.done + '" aria-label="Done">' + ck(x.done) + '</button><button class="b" data-a="edit" data-id="' + x.id + '" style="text-align:left;display:flex;align-items:center;gap:8px"><span class="t1" style="flex:1;min-width:0">' + esc(x.title) + '</span>' + (x.time || x.note ? '<span class="t2" style="flex:none;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(x.time || x.note) + '</span>' : '') + '</button></div>';
+  });
+  h += '</div><div class="tl sch"><div class="th"><span>Schedule</span><small>' + (evs.length ? evs.length + (evs.length === 1 ? ' event' : ' events') : '') + '</small></div>';
+  if (!evs.length) h += '<div class="row empty" style="min-height:0">Nothing scheduled</div>';
+  evs.forEach(function (x) {
+    var c = !x.time ? '#DDF247' : x.time >= '18:00' ? '#8FB39D' : '#E2965A';
+    h += '<button class="row rp" data-a="edit" data-id="' + x.id + '" style="min-height:52px"><i class="bar" style="background:' + c + '"></i><span style="width:44px;font-size:14px;font-weight:300">' + (x.time || 'All day') + '</span><span class="b"><span class="t1" style="font-size:15px">' + esc(x.title) + '</span>' + (x.location ? '<span class="t2">' + esc(x.location) + '</span>' : '') + '</span></button>';
+  });
+  return h + '</div>';
+}
+function flipCard() {
+  var ci = cardOfDay(today()), kept = S.kept.indexOf(ci) >= 0;
+  return '<button class="flip aura a-violet rp mt16' + (V.flip ? ' on' : '') + '" data-a="flip" aria-label="Today’s card, tap to flip">' +
     '<span class="fr"><span class="card-ic">' + ic('spark', 26, 'stroke-width:1.5') + '</span><span><span class="chip">Today’s card</span><span style="display:block;font-size:21px;font-weight:300;margin-top:8px">Tap to turn it over</span></span></span>' +
     '<span class="bk"><span style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span class="chip">Today’s card</span><span data-a="keep" class="chip w" role="button" aria-label="Keep this card">' + (kept ? 'Kept' : 'Keep') + '</span></span><span style="font-size:19px;font-weight:300;line-height:1.3">' + esc(CARDS[ci]) + '</span></span></button>';
-  return h;
 }
 
 /* ---------------- Plan ---------------- */
@@ -154,7 +186,8 @@ function viewWellness() {
   var t = today(), cs = currentSession(), bd = S.breath[t] || {}, sess = SESSIONS.filter(function (s) { return s[0] === cs; })[0];
   var mood = S.moods[t], ww = workoutWeek(t), slept = S.sleep[t] || S.sleep[addDays(t, -1)];
   var h = topbar('Wellness') + '<div class="sub">Small things, every day</div>';
-  h += '<a class="aura a-violet rp mt16" href="#breathe" style="display:flex;align-items:center;gap:14px;min-height:156px;padding:18px 18px 18px 22px"><span style="flex:1;min-width:0"><span class="chip">' + sess[1] + (bd[cs] ? ' · done' : ' · next') + '</span><span style="display:block;font-size:26px;font-weight:200;margin-top:10px">Breathe</span><span style="display:block;font-size:13px;font-weight:300">' + BREATH[sess[2]].label + ' · 5 min</span>' +
+  h += flipCard();
+  h += '<a class="aura a-violet rp mt" href="#breathe" style="display:flex;align-items:center;gap:14px;min-height:156px;padding:18px 18px 18px 22px"><span style="flex:1;min-width:0"><span class="chip">' + sess[1] + (bd[cs] ? ' · done' : ' · next') + '</span><span style="display:block;font-size:26px;font-weight:200;margin-top:10px">Breathe</span><span style="display:block;font-size:13px;font-weight:300">' + BREATH[sess[2]].label + ' · 5 min</span>' +
     '<span style="display:flex;gap:6px;margin-top:12px">' + SESSIONS.map(function (s) { return '<i style="width:26px;height:5px;border-radius:5px;background:' + (bd[s[0]] ? '#fff' : 'rgba(255,255,255,.4)') + '"></i>'; }).join('') + '</span></span><span class="circle glass" style="width:66px;height:66px">' + ic('play') + '</span></a>';
   var bars = weekDates(t).map(function (d) { var e = S.sleep[d]; var m = e ? sleepMinutes(e) : 0; return '<i style="flex:1;height:' + Math.max(6, Math.min(100, m / 540 * 100)) + '%;border-radius:3px;background:' + (d === t ? '#fff' : e ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.2)') + '"></i>'; }).join('');
   var pct = Math.min(1, ww.mins / 150), C = 94.2;
@@ -320,7 +353,7 @@ function viewSettings() {
 }
 
 var ROUTES = {
-  today: [viewToday, '', 'Today'], plan: [viewPlan, 'b', 'Plan'], calendar: [viewCalendar, 'b', 'Plan'], 'new': [viewNew, 'b', 'Add'],
+  today: [viewToday, 'f', 'Today'], plan: [viewPlan, 'b', 'Plan'], calendar: [viewCalendar, 'b', 'Plan'], 'new': [viewNew, 'b', 'Add'],
   wellness: [viewWellness, '', 'Wellness'], me: [viewMe, '', 'Me'], cards: [viewCards, '', 'Me'], settings: [viewSettings, 'b', 'Me'],
   breathe: [viewBreathe, 'c', null], mood: [viewMood, 'c', null], sleep: [viewSleep, '', null], pills: [viewPills, 'b', null], workout: [viewWorkout, '', null]
 };
