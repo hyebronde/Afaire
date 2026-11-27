@@ -13,18 +13,31 @@ function render() {
   document.body.className = bodyCls;
   navEl.innerHTML = r[2] ? navHTML(r[2]) : '';
   navEl.style.display = r[2] ? '' : 'none';
-  if (V.spin) spinWheel(V.spin);
-  V.spin = 0;
+  if (V.spin || V.toneFrom) spinWheel(V.spin, V.toneFrom);
+  V.spin = 0; V.toneFrom = null;
   if (render.keep) window.scrollTo(0, y);
   render.keep = false;
 }
 function daysBetween(a, b) { return Math.round((parseYmd(b) - parseYmd(a)) / 864e5); }
-function spinWheel(s) {
-  var bs = app.querySelectorAll('.wh .days button');
-  if (!bs.length || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  bs.forEach(function (b) { b.style.transition = 'none'; b.setAttribute('style', b.getAttribute('style').replace(/transform:[^;]*;opacity:[^;]*(;pointer-events:none)?/, wheelPos(+b.dataset.off + s))); });
-  void app.offsetWidth;
-  bs.forEach(function (b) { b.style.transition = ''; b.setAttribute('style', b.getAttribute('style').replace(/transform:[^;]*;opacity:[^;]*(;pointer-events:none)?/, wheelPos(+b.dataset.off))); });
+function spinWheel(s, from) {
+  var wh = app.querySelector('.wh');
+  if (wh && from) { var to = wh.getAttribute('style'); wh.style.transition = 'none'; wh.setAttribute('style', toneStyle(from)); void wh.offsetWidth; wh.style.transition = ''; wh.setAttribute('style', to); }
+  var bs = app.querySelectorAll('.wh .days button'), ring = app.querySelector('.wh .ring'), days = app.querySelector('.wh .days');
+  if (!bs.length || !s || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var T = Math.min(1100, 620 + Math.abs(s) * 55), t0 = performance.now(), last = s;
+  function ease(p) { var c = 1.25; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); }
+  function put(cur) {
+    bs.forEach(function (b) { var st = b.getAttribute('style').replace(/transform:[^;]*;opacity:[^;]*/, wheelPos(+b.dataset.off + cur)); b.setAttribute('style', st); });
+    if (ring) ring.style.transform = 'rotate(' + (cur * WH_STEP) + 'deg)';
+  }
+  bs.forEach(function (b) { b.style.transition = 'none'; });
+  put(s);
+  (function tick(now) {
+    var p = Math.min(1, (now - t0) / T), cur = s * (1 - ease(p)), v = Math.abs(cur - last); last = cur;
+    put(cur);
+    if (days) days.style.filter = v > .02 ? 'blur(' + Math.min(2.2, v * 9).toFixed(2) + 'px)' : '';
+    if (p < 1) requestAnimationFrame(tick); else { if (days) days.style.filter = ''; bs.forEach(function (b) { b.style.transition = ''; }); }
+  })(t0);
 }
 function go() {
   var h = (location.hash || '#today').slice(1);
@@ -161,15 +174,15 @@ var A = {
   edit: function (el) { var it = byId(S.items, el.dataset.id); itemSheet(it, function (d) { saveItem(it.id, d); }, function () { S.items = S.items.filter(function (x) { return x.id !== it.id; }); save(); rerender(); }); },
   addOn: function (el) { itemSheet({ type: el.dataset.t || 'event', date: el.dataset.v || '' }, function (d) { saveItem(null, d); toast('Added'); }); },
   mon: function (el) { var y = +V.calMonth.slice(0, 4), m = +V.calMonth.slice(5, 7) - 1 + +el.dataset.v; var d = new Date(y, m, 1); V.calMonth = d.getFullYear() + '-' + pad(d.getMonth() + 1); rerender(); },
-  day: function (el) { V.spin = daysBetween(V.calSel, el.dataset.v); V.calSel = el.dataset.v; V.calMonth = V.calSel.slice(0, 7); rerender(); },
+  day: function (el) { V.toneFrom = dayTone(V.calSel); V.spin = daysBetween(V.calSel, el.dataset.v); V.calSel = el.dataset.v; V.calMonth = V.calSel.slice(0, 7); rerender(); },
   wmode: function (el) { V.wmode = el.dataset.v; V.calMonth = V.calSel.slice(0, 7); rerender(); },
   shift: function (el) {
     var n = +el.dataset.v;
-    if ((V.wmode || 'w') === 'w') { V.spin = 7 * n; V.calSel = addDays(V.calSel, 7 * n); V.calMonth = V.calSel.slice(0, 7); }
+    V.toneFrom = dayTone(V.calSel); if ((V.wmode || 'w') === 'w') { V.spin = 7 * n; V.calSel = addDays(V.calSel, 7 * n); V.calMonth = V.calSel.slice(0, 7); }
     else { var y = +V.calMonth.slice(0, 4), mo = +V.calMonth.slice(5, 7) - 1 + n, d = new Date(y, mo, 1); V.calMonth = d.getFullYear() + '-' + pad(d.getMonth() + 1); var dm = Math.min(+V.calSel.slice(8, 10), new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()); V.calSel = V.calMonth + '-' + pad(dm); }
     rerender();
   },
-  toToday: function () { V.spin = daysBetween(V.calSel, today()); V.calSel = today(); V.calMonth = today().slice(0, 7); rerender(); },
+  toToday: function () { V.toneFrom = dayTone(V.calSel); V.spin = daysBetween(V.calSel, today()); V.calSel = today(); V.calMonth = today().slice(0, 7); rerender(); },
   itype: function (el) {
     var f = el.closest('form'); f.elements.type.value = el.dataset.v;
     f.querySelectorAll('[data-a="itype"]').forEach(function (b) { b.classList.toggle('on', b === el); });
@@ -303,7 +316,7 @@ function resizeImage(file, max) {
 }
 
 /* ---------------- start ---------------- */
-var APP_VERSION = '1.7';
+var APP_VERSION = '1.8';
 if ('serviceWorker' in navigator) {
   var swReg = null, reloaded = false;
   navigator.serviceWorker.register('sw.js').then(function (r) { swReg = r; r.update(); }).catch(function () {});

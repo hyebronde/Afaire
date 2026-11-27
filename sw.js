@@ -1,5 +1,5 @@
 /* Afaire service worker: offline cache + reminders */
-var CACHE = 'afaire-v7';
+var CACHE = 'afaire-v8';
 var SHELL = ['./', './index.html', './cards.js', './core.js', './views.js', './main.js', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png', './icon.svg'];
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(SHELL); }).then(function () { return self.skipWaiting(); }));

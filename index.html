@@ -271,6 +271,12 @@ body.f .row.done .t1{color:rgba(255,255,255,.4)}
 .wh .days{inset:0 6px}
 .wh .days button{position:absolute;left:50%;top:0;width:calc((100% - 0px)/7);margin-left:calc(-100%/14);transition:transform .55s cubic-bezier(.3,1.15,.4,1),opacity .45s}
 .wh .days button{overflow:visible}.wh .days button::after{display:none}
+/* wheel v2: real rotation + day tone */
+.wh{isolation:isolate;background:none!important;--h:0deg;--s:1;--b:1}
+.wh::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:radial-gradient(55% 45% at 50% 58%,rgba(6,14,10,.92) 0%,rgba(6,14,10,.55) 45%,rgba(6,14,10,0) 80%),radial-gradient(40% 40% at 92% 100%,rgba(226,150,80,.55) 0%,rgba(226,150,80,0) 70%),linear-gradient(180deg,#A9C7B4 0%,#8FB39D 50%,#6E9580 100%);filter:hue-rotate(var(--h)) saturate(var(--s)) brightness(var(--b));transition:filter 1.6s cubic-bezier(.45,0,.25,1)}
+.wh .days button{transform-origin:50% 520px;transition:none}
+.wh .ring{position:absolute;left:50%;top:104px;width:832px;height:832px;margin-left:-416px;border-radius:50%;border:2px dotted rgba(255,255,255,.45);pointer-events:none}
+.wh .days button:active .n{transform:scale(.9)}
 </style>
 </head>
 <body>

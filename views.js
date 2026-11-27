@@ -66,13 +66,13 @@ function agendaRows(s) {
 function viewToday() {
   var t = today(), sel = V.calSel, sd = parseYmd(sel), mode = V.wmode || 'w', dn = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   var has = function (d) { return itemsOn(d).length > 0; };
-  var h = '<section class="wh" aria-label="Calendar">';
+  var h = '<section class="wh" aria-label="Calendar" style="' + toneStyle(dayTone(sel)) + '">';
   h += '<div class="hd"><div class="sg" role="group" aria-label="View"><button class="rp' + (mode === 'w' ? ' on' : '') + '" data-a="wmode" data-v="w" aria-pressed="' + (mode === 'w') + '">Weekly</button><button class="rp' + (mode === 'm' ? ' on' : '') + '" data-a="wmode" data-v="m" aria-pressed="' + (mode === 'm') + '">Monthly</button></div>' +
     '<button class="ib rp" data-a="toToday" aria-label="Go to today">' + ic('cal', 20) + '</button></div>';
   if (mode === 'w') {
     h += '<div class="big"><span>' + MONTHS[sd.getMonth()] + '</span><span>' + sd.getDate() + '</span></div>';
     var wd = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    h += '<div class="whl"><div class="arc" style="top:50px;height:66px;border-top:1px solid rgba(255,255,255,.3)"></div><div class="arc" style="top:104px;height:20px;border-top:2px dotted rgba(255,255,255,.45)"></div><div class="days">';
+    h += '<div class="whl"><div class="arc" style="top:50px;height:66px;border-top:1px solid rgba(255,255,255,.3)"></div><div class="ring"></div><div class="days">';
     for (var i = -5; i <= 5; i++) {
       var d = addDays(sel, i), dd = parseYmd(d);
       h += '<button class="rp' + (d === sel ? ' on' : '') + (d === t ? ' td' : '') + '" data-a="day" data-v="' + d + '" data-off="' + i + '" aria-label="' + fmtLong(d) + '"' + (Math.abs(i) > 3 ? ' tabindex="-1" aria-hidden="true"' : '') + ' style="' + wheelPos(i) + '"><span class="l">' + wd[dd.getDay()] + '</span><span class="n">' + dd.getDate() + '</span><i class="dot' + (has(d) ? ' y' : '') + '"></i></button>';
@@ -106,10 +106,16 @@ function viewToday() {
   });
   return h + '</div>';
 }
+var WH_STEP = 5.6, WH_R = 520;
 function wheelPos(o) {
   var a = Math.abs(o);
-  return 'transform:translateX(' + (o * 100) + '%) translateY(' + (o * o * 3.2) + 'px) rotate(' + (o * 2.2) + 'deg);opacity:' + (a > 3.5 ? 0 : a > 3 ? 1 - (a - 3) * 2 : 1) + (a > 3 ? ';pointer-events:none' : '');
+  return 'transform:rotate(' + (o * WH_STEP).toFixed(3) + 'deg);opacity:' + (a > 3.6 ? 0 : a > 3 ? (1 - (a - 3) / .6).toFixed(3) : 1);
 }
+function dayTone(d) {
+  var n = Math.round((parseYmd(d) - new Date(2026, 0, 1)) / 864e5);
+  return { h: Math.round(70 * Math.sin(n * .45) + 25 * Math.sin(n * 1.3)), s: +(1 + .32 * Math.sin(n * .7 + 1)).toFixed(2), b: +(1 + .06 * Math.sin(n * .9)).toFixed(2) };
+}
+function toneStyle(t) { return '--h:' + t.h + 'deg;--s:' + t.s + ';--b:' + t.b; }
 function flipCard() {
   var ci = cardOfDay(today()), kept = S.kept.indexOf(ci) >= 0;
   return '<button class="flip aura a-teal rp mt16' + (V.flip ? ' on' : '') + '" data-a="flip" aria-label="Today’s card, tap to flip">' +
