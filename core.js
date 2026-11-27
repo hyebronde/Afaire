@@ -98,39 +98,7 @@ function currentSession() {
   return order[0];
 }
 
-var CARDS = [
-  'You don’t have to do everything today to be doing enough.',
-  'Rest is part of the plan, not a break from it.',
-  'Be as kind to yourself as you are to your friends.',
-  'Small steps still move you forward.',
-  'You are allowed to take up space.',
-  'Today, choose the gentle option.',
-  'Your worth isn’t measured by how busy you are.',
-  'It’s okay to start again, as many times as you need.',
-  'Drink some water. Unclench your jaw. Breathe.',
-  'You’ve handled hard days before. You can handle this one.',
-  'Progress, not perfection.',
-  'Saying no to something is saying yes to yourself.',
-  'You deserve the care you give to others.',
-  'Slow is still moving.',
-  'Notice one good thing today. That counts.',
-  'Your feelings are valid, even the messy ones.',
-  'Doing your best looks different every day.',
-  'You can be a work in progress and still be enough.',
-  'Take the break before you need it.',
-  'Let today be lighter than yesterday.',
-  'You’re learning, not failing.',
-  'There’s no deadline on becoming yourself.',
-  'Be proud of the small things you finished.',
-  'You get to decide what a good day looks like.',
-  'Go to bed a little earlier tonight. Future you says thanks.',
-  'Your body is on your side. Listen to it.',
-  'One thing at a time is enough.',
-  'You are not behind. You are on your own path.',
-  'A quiet day is still a good day.',
-  'Let someone help you today.'
-];
-function cardOfDay(s) { var d = parseYmd(s || today()); var n = Math.floor(d.getTime() / 86400000); return ((n * 7) % CARDS.length + CARDS.length) % CARDS.length; }
+function cardOfDay(s) { var d = parseYmd(s || today()); var start = new Date(d.getFullYear(), 0, 1); var day = Math.round((d - start) / 86400000); return ((day * 97) % CARDS.length + CARDS.length) % CARDS.length; }
 
 /* ---------- reminders ---------- */
 function buildReminders() {
