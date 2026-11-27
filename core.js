@@ -223,16 +223,6 @@ function nextDow(dow, forceNext) {
 }
 
 /* ---------- misc ---------- */
-function gcalLink(it) {
-  var dates;
-  if (it.time) {
-    var st = it.date.replace(/-/g, '') + 'T' + it.time.replace(':', '') + '00';
-    var et = it.date.replace(/-/g, '') + 'T' + (it.endTime || pad(Math.min(23, +it.time.split(':')[0] + 1)) + ':' + it.time.split(':')[1]).replace(':', '') + '00';
-    dates = st + '/' + et;
-  } else { dates = it.date.replace(/-/g, '') + '/' + addDays(it.date, 1).replace(/-/g, ''); }
-  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(it.title) + '&dates=' + dates +
-    '&details=' + encodeURIComponent(it.note || '') + '&location=' + encodeURIComponent(it.location || '') + '&ctz=' + encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone);
-}
 function baht(n) { return '฿' + Math.round(+n || 0).toLocaleString('en-US'); }
 var toastT;
 function toast(msg) { var t = document.getElementById('toast'); if (!t) return; t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove('on'); }, 2600); }

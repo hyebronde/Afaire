@@ -80,7 +80,6 @@ function itemSheet(it, onSave, onDelete) {
   b += fld('Reminder', sel('remind', REMIND, it.remind == null ? '' : it.remind));
   b += fld('Note', '<textarea class="inp" name="note" placeholder="Optional">' + esc(it.note || '') + '</textarea>');
   b += '<button class="pill dark rp">' + ic('check', 18, 'stroke-width:2.2') + 'Save</button>';
-  if (it.id && it.date && type === 'event') b += '<a class="pill glass rp mt" href="' + gcalLink(it) + '" target="_blank" rel="noopener">' + ic('ext', 18) + 'Add to Google Calendar</a>';
   if (onDelete) b += '<button type="button" class="pill rp mt" style="color:#B3413B" data-a="sheetDel">' + ic('trash', 18) + 'Delete</button>';
   openSheet(isNew ? 'New ' + type : 'Edit', b, function (f) {
     var out = { type: f.type, title: f.title.trim(), date: f.date, time: f.time, endTime: f.type === 'event' ? f.endTime : '', location: f.type === 'event' ? f.location.trim() : '', note: f.note.trim(), remind: f.remind === '' ? null : +f.remind };
