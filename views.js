@@ -71,11 +71,11 @@ function viewToday() {
     '<button class="ib rp" data-a="toToday" aria-label="Go to today">' + ic('cal', 20) + '</button></div>';
   if (mode === 'w') {
     h += '<div class="big"><span>' + MONTHS[sd.getMonth()] + '</span><span>' + sd.getDate() + '</span></div>';
-    var mon = mondayOf(sel);
+    var wd = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     h += '<div class="whl"><div class="arc" style="top:50px;height:66px;border-top:1px solid rgba(255,255,255,.3)"></div><div class="arc" style="top:104px;height:20px;border-top:2px dotted rgba(255,255,255,.45)"></div><div class="days">';
-    for (var i = 0; i < 7; i++) {
-      var d = addDays(mon, i), off = i - 3, dd = parseYmd(d);
-      h += '<button class="rp' + (d === sel ? ' on' : '') + (d === t ? ' td' : '') + '" data-a="day" data-v="' + d + '" aria-label="' + fmtLong(d) + '" style="transform:translateY(' + (off * off * 3.2) + 'px) rotate(' + (off * 2.2) + 'deg)"><span class="l">' + dn[i] + '</span><span class="n">' + dd.getDate() + '</span><i class="dot' + (has(d) ? ' y' : '') + '"></i></button>';
+    for (var i = -5; i <= 5; i++) {
+      var d = addDays(sel, i), dd = parseYmd(d);
+      h += '<button class="rp' + (d === sel ? ' on' : '') + (d === t ? ' td' : '') + '" data-a="day" data-v="' + d + '" data-off="' + i + '" aria-label="' + fmtLong(d) + '"' + (Math.abs(i) > 3 ? ' tabindex="-1" aria-hidden="true"' : '') + ' style="' + wheelPos(i) + '"><span class="l">' + wd[dd.getDay()] + '</span><span class="n">' + dd.getDate() + '</span><i class="dot' + (has(d) ? ' y' : '') + '"></i></button>';
     }
     h += '</div></div>';
   } else {
@@ -105,6 +105,10 @@ function viewToday() {
     h += '<button class="row rp" data-a="edit" data-id="' + x.id + '" style="min-height:52px"><i class="bar" style="background:' + c + '"></i><span style="width:44px;font-size:14px;font-weight:300">' + (x.time || 'All day') + '</span><span class="b"><span class="t1" style="font-size:15px">' + esc(x.title) + '</span>' + (x.location ? '<span class="t2">' + esc(x.location) + '</span>' : '') + '</span></button>';
   });
   return h + '</div>';
+}
+function wheelPos(o) {
+  var a = Math.abs(o);
+  return 'transform:translateX(' + (o * 100) + '%) translateY(' + (o * o * 3.2) + 'px) rotate(' + (o * 2.2) + 'deg);opacity:' + (a > 3.5 ? 0 : a > 3 ? 1 - (a - 3) * 2 : 1) + (a > 3 ? ';pointer-events:none' : '');
 }
 function flipCard() {
   var ci = cardOfDay(today()), kept = S.kept.indexOf(ci) >= 0;
