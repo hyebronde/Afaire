@@ -222,7 +222,7 @@ var A = {
   },
   testPush: function () { api('/test', { sub: S.settings.sub }).then(function (r) { toast(r.ok ? 'Sent. Check your notifications.' : 'Could not send (' + r.status + ')'); }).catch(function (e) { toast(e.message); }); },
   testServer: function () {
-    var f = document.querySelector('[data-f="server"]'); S.settings.workerUrl = f.elements.workerUrl.value.trim(); S.settings.token = f.elements.token.value; save();
+    var f = document.querySelector('[data-f="server"]'); S.settings.workerUrl = f.elements.workerUrl.value.trim(); S.settings.token = f.elements.token.value.trim(); save();
     api('/health').then(function (r) { toast(!r.authed ? 'Wrong app password' : r.ai ? 'Connected, AI ready' : 'Connected, but AI key is missing'); }).catch(function (e) { toast('Can’t reach the server: ' + e.message); });
   },
   'export': function () {
@@ -269,7 +269,7 @@ document.addEventListener('submit', function (e) {
     SESSIONS.forEach(function (s) { if (d['bt_' + s[0]]) S.settings.breathTimes[s[0]] = d['bt_' + s[0]]; });
     save(); toast('Saved'); rerender();
   }
-  if (kind === 'server') { S.settings.workerUrl = d.workerUrl.trim().replace(/\/+$/, ''); S.settings.token = d.token; save(); toast('Saved'); rerender(); }
+  if (kind === 'server') { S.settings.workerUrl = d.workerUrl.trim().replace(/\/+$/, ''); S.settings.token = d.token.trim(); save(); toast('Saved'); rerender(); }
 });
 
 function resizeImage(file, max) {

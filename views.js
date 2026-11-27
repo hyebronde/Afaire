@@ -299,7 +299,7 @@ function viewSettings() {
     '<button class="pill glass rp" style="height:50px">Save</button></form></div>';
   h += '<div class="label"><span>AI and server</span><span>' + (st.workerUrl ? 'Connected' : 'Not set up') + '</span></div><form class="glass" data-f="server" style="padding:16px 18px">' +
     '<label class="field"><span>Server address</span><input class="inp" name="workerUrl" type="url" inputmode="url" autocapitalize="off" placeholder="https://afaire.your-name.workers.dev" value="' + esc(st.workerUrl) + '"></label>' +
-    '<label class="field"><span>App password (if you set one)</span><input class="inp" name="token" type="password" autocomplete="off" value="' + esc(st.token) + '"></label>' +
+    '<label class="field"><span>App password (if you set one)</span><input class="inp" name="token" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" value="' + esc(st.token) + '"></label>' +
     '<div style="display:flex;gap:8px"><button class="pill dark rp" style="flex:1;height:50px">Save</button><button type="button" class="pill glass rp" style="flex:1;height:50px" data-a="testServer">Check</button></div>' +
     '<div class="sub" style="margin:10px 4px 0">The setup guide is in the README on GitHub.</div></form>';
   h += '<div class="label"><span>Your data</span><span>Stays on this phone</span></div><div class="glass" style="padding:14px 18px;display:flex;gap:8px;flex-wrap:wrap">' +
