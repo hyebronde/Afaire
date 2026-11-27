@@ -108,7 +108,7 @@ function viewToday() {
 }
 function flipCard() {
   var ci = cardOfDay(today()), kept = S.kept.indexOf(ci) >= 0;
-  return '<button class="flip aura a-violet rp mt16' + (V.flip ? ' on' : '') + '" data-a="flip" aria-label="Today’s card, tap to flip">' +
+  return '<button class="flip aura a-teal rp mt16' + (V.flip ? ' on' : '') + '" data-a="flip" aria-label="Today’s card, tap to flip">' +
     '<span class="fr"><span class="card-ic">' + ic('spark', 26, 'stroke-width:1.5') + '</span><span><span class="chip">Today’s card</span><span style="display:block;font-size:21px;font-weight:300;margin-top:8px">Tap to turn it over</span></span></span>' +
     '<span class="bk"><span style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span class="chip">Today’s card</span><span data-a="keep" class="chip w" role="button" aria-label="Keep this card">' + (kept ? 'Kept' : 'Keep') + '</span></span><span style="font-size:19px;font-weight:300;line-height:1.3">' + esc(CARDS[ci]) + '</span></span></button>';
 }

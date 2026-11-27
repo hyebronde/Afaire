@@ -256,6 +256,18 @@ body.f .row.done .t1{color:rgba(255,255,255,.4)}
 .tl .th small{font-size:13px;font-weight:300;color:rgba(243,238,230,.72)}
 .tl .row{border-top:1px solid rgba(255,255,255,.12)}
 .tl .bar{width:4px;height:30px;border-radius:4px;flex:none}
+/* rich aura tiles (ref) */
+.aura::before{filter:blur(9px) saturate(.9)}
+.aura:active::before{filter:blur(16px) saturate(1)}
+.a-violet{--a:radial-gradient(55% 50% at 50% 62%, rgba(46,8,48,.85) 0%, rgba(46,8,48,0) 75%), linear-gradient(180deg,#C06FA9 0%,#844486 55%,#53265A 100%)}
+.a-teal{--a:radial-gradient(50% 50% at 58% 58%, rgba(5,9,7,.95) 0%, rgba(5,9,7,0) 78%), linear-gradient(160deg,#A3BFAF 0%,#7F9C8C 100%)}
+.a-coral{--a:radial-gradient(42% 38% at 62% 52%, rgba(125,35,85,.85) 0%, rgba(125,35,85,0) 75%), linear-gradient(160deg,#E2B0CE 0%,#C98DB2 100%)}
+.a-gold{--a:radial-gradient(34% 40% at 72% 58%, #4A58BE 0%, rgba(74,88,190,0) 75%), linear-gradient(160deg,#C2724F 0%,#A65839 100%)}
+.a-sky{--a:radial-gradient(48% 50% at 55% 58%, rgba(6,9,26,.92) 0%, rgba(6,9,26,0) 78%), linear-gradient(160deg,#4C64C2 0%,#34448F 100%)}
+.a-night{--a:linear-gradient(180deg,#4B4458 0%,#896873 55%,#C4877C 100%)}
+.aura{text-shadow:0 1px 3px rgba(0,0,0,.35)}
+.tl.todo{background:linear-gradient(180deg,#4B4458 0%,#896873 55%,#C4877C 100%)}
+.tl.sch{background:radial-gradient(48% 55% at 55% 60%,rgba(6,9,26,.9) 0%,rgba(6,9,26,0) 78%),linear-gradient(160deg,#4C64C2 0%,#34448F 100%)}
 </style>
 </head>
 <body>
