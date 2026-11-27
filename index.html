@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Afaire</title>
 <meta name="description" content="Plan your day, look after yourself.">
-<meta name="theme-color" content="#070C09">
+<meta name="theme-color" content="#3A302B">
 <meta name="color-scheme" content="dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -298,6 +298,47 @@ body.f .row.done .t1{color:rgba(255,255,255,.4)}
 .pg button small{font-size:9px;font-weight:400;line-height:1.1;max-width:100%;padding:0 2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;opacity:.95}
 .pg button.td b{background:#F3F1EA;color:var(--deep);text-shadow:none;font-weight:600}
 .pg button.on:not(.td) b{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.9)}
+/* warm glow theme */
+html{background:#3A302B}
+body,body.b,body.f{background:radial-gradient(90% 55% at 50% 30%,#6B5A51 0%,#54453E 45%,#3A302B 80%,#2C2420 100%);background-attachment:fixed}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.10;mix-blend-mode:overlay}
+.glass{background:rgba(36,27,23,.38);border:1px solid rgba(255,228,205,.13);box-shadow:inset 0 1px 0 rgba(255,235,215,.08),0 18px 36px rgba(20,12,8,.3)}
+body.f .nav a.glass,.nav a.glass{background:rgba(36,27,23,.45);border:1px solid rgba(255,228,205,.14)}
+.sheet{background:rgba(48,38,33,.97)}
+/* home wheel: auro glow */
+.wh{border:0;box-shadow:0 0 0 1px rgba(255,220,190,.12),0 30px 60px rgba(20,10,5,.4),0 0 80px rgba(255,170,100,.18)}
+.wh::before{background:radial-gradient(42% 36% at 34% 26%,#120805 0%,rgba(18,8,5,.85) 35%,rgba(18,8,5,0) 75%),radial-gradient(26% 46% at 0% 46%,#EC7A22 0%,rgba(236,122,34,0) 75%),radial-gradient(40% 34% at 98% 6%,#9FB8BC 0%,rgba(159,184,188,0) 75%),linear-gradient(180deg,#6E4128 0%,#B77A48 48%,#EDBE86 78%,#FBE3C2 100%)}
+.wh .ft .nv button,.wh .ib,.wh .hd .tb{background:rgba(30,18,12,.32)}
+.wh .ring{border-color:rgba(255,240,225,.5)}
+/* to-do: lit from below */
+.tl{border:0}
+.tl.todo{background:linear-gradient(180deg,#1E1612 0%,#2A1B13 40%,#6E3518 72%,#E08840 94%,#F7B470 100%);box-shadow:0 0 0 1px rgba(255,210,170,.1),0 26px 50px rgba(230,120,50,.28)}
+/* schedule: neon rim */
+.tl.sch{background:linear-gradient(180deg,#1C1513,#16110F);box-shadow:inset 0 0 0 1.5px #FF7A2C,inset 0 0 18px rgba(255,120,40,.25),0 -10px 36px rgba(255,110,30,.4),0 0 70px rgba(255,90,20,.18)}
+.tl.sch .row{border-top-color:rgba(255,150,90,.18)}
+/* wellness tiles */
+.a-violet{--a:radial-gradient(closest-side,#260602 0%,#4A1206 45%,#A9431C 72%,#F59A5C 86%,#FFE0B8 93%,rgba(255,224,184,0) 100%),repeating-linear-gradient(90deg,rgba(255,215,180,.09) 0 1px,rgba(255,215,180,0) 1px 9px),linear-gradient(180deg,#6E2614,#B8502C 60%,#E0A27A)}
+.aura.a-violet::before,.flip.a-violet::before{filter:blur(1.5px)}
+.a-night{--a:repeating-linear-gradient(180deg,rgba(18,12,10,0) 0 20px,rgba(18,12,10,.32) 20px 22px),radial-gradient(48% 52% at 50% 52%,#FFE6C8 0%,#F7A066 35%,#E0602C 60%,rgba(200,64,26,0) 74%),linear-gradient(180deg,#1C1412,#140E0C)}
+.aura.a-night::before{filter:blur(1.2px)}
+.a-coral{--a:radial-gradient(circle,rgba(255,250,240,.22) 0.9px,rgba(255,250,240,0) 1.5px) 0 0/5px 5px,linear-gradient(180deg,#3A302C 0%,#7A4426 40%,#D99A5C 72%,#FBEAD0 100%)}
+.aura.a-coral::before{filter:blur(.6px)}
+.a-gold{--a:linear-gradient(180deg,#2E1E16 0%,#8A4420 40%,#E89A52 75%,#FFEBC8 100%)}
+.a-sky{--a:radial-gradient(closest-side,#2A1E20 66%,#4B3BC8 76%,#E07AB8 83%,#FFD98A 89%,#86E0CC 94%,rgba(134,224,204,0) 100%),linear-gradient(#2A1E20,#2A1E20)}
+.aura.a-sky::before{filter:blur(3px)}
+.a-teal{--a:radial-gradient(42% 40% at 32% 24%,#120805 0%,rgba(18,8,5,0) 78%),radial-gradient(26% 50% at 0% 50%,#EC7A22 0%,rgba(236,122,34,0) 75%),radial-gradient(40% 40% at 98% 4%,#9FB8BC 0%,rgba(159,184,188,0) 75%),linear-gradient(180deg,#6E4128 0%,#C08550 55%,#F6D3A4 100%)}
+.aura{box-shadow:0 18px 40px rgba(20,10,5,.35)}
+.aura.a-violet::before,.flip.a-violet::before{filter:blur(5px)}
+.aura.a-night::before{filter:blur(4.5px)}
+.sbar{background:linear-gradient(180deg,rgba(255,236,214,.55),rgba(255,236,214,.22))!important}
+.sbar.ok{background:linear-gradient(180deg,#F7C894,#C9783E)!important}
+.sbar.now{background:linear-gradient(180deg,#FFE6C8,#E8843E)!important}
+/* wellness more colour */
+.a-gold{--a:linear-gradient(180deg,#3557D6 0%,#5F7BE6 32%,#EDE6F3 62%,#F2909E 86%,#C63E5A 100%)}
+.a-coral{--a:radial-gradient(circle,rgba(255,250,240,.24) 0.9px,rgba(255,250,240,0) 1.5px) 0 0/5px 5px,linear-gradient(180deg,#4A2448 0%,#B2487C 40%,#F18EA2 70%,#FFE3CC 100%)}
+.a-night{--a:repeating-linear-gradient(180deg,rgba(14,16,40,0) 0 20px,rgba(14,16,40,.32) 20px 22px),radial-gradient(46% 50% at 50% 52%,#FFE9CF 0%,#FFAE6E 35%,#F0683A 60%,rgba(240,104,58,0) 74%),linear-gradient(180deg,#1A1F48,#11142E)}
+.a-violet{--a:radial-gradient(closest-side,#2A0604 0%,#5A1308 45%,#D2481C 72%,#FF9A4E 86%,#FFE6B8 93%,rgba(255,230,184,0) 100%),repeating-linear-gradient(90deg,rgba(255,215,180,.09) 0 1px,rgba(255,215,180,0) 1px 9px),linear-gradient(180deg,#8A2412,#E05A2C 60%,#F7B07A)}
+.a-violet{--a:radial-gradient(closest-side,#2F4A40 0%,#4F7466 45%,#8FBFA8 72%,#CDEBD9 86%,#F1FAF2 93%,rgba(241,250,242,0) 100%),repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0 1px,rgba(255,255,255,0) 1px 9px),linear-gradient(180deg,#9DC4B0,#BFDCCB 60%,#E4F1E6)}
 </style>
 </head>
 <body>

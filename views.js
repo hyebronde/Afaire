@@ -112,7 +112,7 @@ function wheelPos(o) {
 }
 function dayTone(d) {
   var n = Math.round((parseYmd(d) - new Date(2026, 0, 1)) / 864e5);
-  return { h: Math.round(70 * Math.sin(n * .45) + 25 * Math.sin(n * 1.3)), s: +(1 + .32 * Math.sin(n * .7 + 1)).toFixed(2), b: +(1 + .06 * Math.sin(n * .9)).toFixed(2) };
+  return { h: Math.round(16 * Math.sin(n * .45) + 7 * Math.sin(n * 1.3)), s: +(1 + .28 * Math.sin(n * .7 + 1)).toFixed(2), b: +(1 + .07 * Math.sin(n * .9)).toFixed(2) };
 }
 function toneStyle(t) { return '--h:' + t.h + 'deg;--s:' + t.s + ';--b:' + t.b; }
 function flipCard() {
@@ -282,7 +282,7 @@ function viewSleep() {
   var avg = mins.length ? mins.reduce(function (a, b) { return a + b; }, 0) / mins.length : 0;
   var lb = Math.round(7 / 9 * H);
   h += '<div class="glass mt" style="padding:14px 16px 12px"><div class="label" style="margin:0"><span>This week</span><span>' + (mins.length ? 'Average ' + dur(avg) : 'No nights logged') + '</span></div><div style="position:relative;height:' + H + 'px;margin-top:24px"><div style="position:absolute;left:0;right:0;bottom:' + lb + 'px;border-top:1.5px dashed rgba(255,255,255,.35)"></div><span class="chip" style="position:absolute;right:0;bottom:' + (lb + 4) + 'px;height:20px;padding:0 7px;font-size:10.5px">7h</span><div style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr))">' +
-    wk.map(function (d) { var x = S.sleep[d]; var mm = x ? sleepMinutes(x) : 0; return '<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:100%"><span style="font-size:10.5px;font-weight:300;opacity:' + (mm ? 1 : 0) + '">' + Math.floor(mm / 60) + 'h</span><i class="' + (mm ? (d === t ? 'dotA a-night' : mm >= 420 ? 'dotA a-violet' : '') : '') + '" style="width:24px;height:' + (mm ? Math.min(H - 18, Math.round(mm / 540 * H)) : 8) + 'px;border-radius:12px;' + (mm ? (mm < 420 && d !== t ? 'background:linear-gradient(180deg,#D9D0F7,#BDB2EC)' : '') : 'border:1.5px dashed rgba(255,255,255,.25)') + '"></i></div>'; }).join('') +
+    wk.map(function (d) { var x = S.sleep[d]; var mm = x ? sleepMinutes(x) : 0; return '<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:100%"><span style="font-size:10.5px;font-weight:300;opacity:' + (mm ? 1 : 0) + '">' + Math.floor(mm / 60) + 'h</span><i class="' + (mm ? (d === t ? 'sbar now' : mm >= 420 ? 'sbar ok' : 'sbar') : '') + '" style="width:24px;height:' + (mm ? Math.min(H - 18, Math.round(mm / 540 * H)) : 8) + 'px;border-radius:12px;' + (mm ? (mm < 420 && d !== t ? 'background:linear-gradient(180deg,#D9D0F7,#BDB2EC)' : '') : 'border:1.5px dashed rgba(255,255,255,.25)') + '"></i></div>'; }).join('') +
     '</div></div><div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));text-align:center;font-size:12px;font-weight:300;color:var(--muted);margin-top:6px">' + wk.map(function (d) { return '<span' + (d === t ? ' style="color:var(--ink);font-weight:500"' : '') + '>' + DOW[parseYmd(d).getDay()].charAt(0) + '</span>'; }).join('') + '</div></div>';
   var verdict = sleepVerdict(logged, mins);
   h += '<div class="glass mt" style="padding:4px 18px"><div style="padding:12px 0;border-bottom:1px solid var(--line)"><div style="font-size:15px">Hours</div><div class="sub" style="margin-top:2px">' + verdict[0] + '</div></div><div style="padding:12px 0"><div style="font-size:15px">Bedtime</div><div class="sub" style="margin-top:2px">' + verdict[1] + '</div></div></div>';
