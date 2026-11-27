@@ -315,7 +315,7 @@ function viewSettings() {
     '<div class="sub" style="margin:10px 4px 0">The setup guide is in the README on GitHub.</div></form>';
   h += '<div class="label"><span>Your data</span><span>Stays on this phone</span></div><div class="glass" style="padding:14px 18px;display:flex;gap:8px;flex-wrap:wrap">' +
     '<button class="pill glass rp" style="flex:1;height:50px" data-a="export">' + ic('dl', 18) + 'Back up</button><label class="pill glass rp" style="flex:1;height:50px;cursor:pointer">Restore<input type="file" accept="application/json" class="sr" data-a="import"></label>' +
-    '<button class="pill rp" style="flex-basis:100%;height:46px;color:#B3413B;font-size:14px" data-a="wipe">' + (V.wipe ? 'Tap again to delete everything' : 'Delete all data') + '</button></div>';
+    '<div class="sub" style="flex-basis:100%;text-align:center;margin:2px 0 0">Afaire version ' + APP_VERSION + '</div><button class="pill rp" style="flex-basis:100%;height:46px;color:#B3413B;font-size:14px" data-a="wipe">' + (V.wipe ? 'Tap again to delete everything' : 'Delete all data') + '</button></div>';
   return h;
 }
 

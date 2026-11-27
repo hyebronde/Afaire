@@ -286,7 +286,13 @@ function resizeImage(file, max) {
 }
 
 /* ---------------- start ---------------- */
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+var APP_VERSION = '1.3';
+if ('serviceWorker' in navigator) {
+  var swReg = null, reloaded = false;
+  navigator.serviceWorker.register('sw.js').then(function (r) { swReg = r; r.update(); }).catch(function () {});
+  navigator.serviceWorker.addEventListener('controllerchange', function () { if (reloaded) return; reloaded = true; location.reload(); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && swReg) swReg.update(); });
+}
 document.addEventListener('visibilitychange', function () { if (!document.hidden) { syncReminders(); if (route !== 'breathe') rerender(); } });
 go();
 syncReminders();
