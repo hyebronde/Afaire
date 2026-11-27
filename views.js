@@ -57,7 +57,7 @@ function agendaRows(s) {
   var list = itemsOn(s), h = '';
   if (!list.length) return '<div class="empty">Nothing planned</div>';
   list.forEach(function (x) {
-    var bar = x.type === 'task' ? '' : '<i class="dotA ' + (x.time && x.time >= '18:00' ? 'a-violet' : 'a-sky') + '" style="width:4px;height:30px;border-radius:4px;flex:none"></i>';
+    var bar = x.type === 'task' ? '' : '<i class="evbar' + (x.time && x.time >= '18:00' ? ' eve' : '') + '"></i>';
     h += '<div class="row' + (x.done ? ' done' : '') + '" style="min-height:52px">' + (x.type === 'task' ? '<button class="rp" data-a="toggle" data-id="' + x.id + '" aria-pressed="' + !!x.done + '" aria-label="Done">' + ck(x.done) + '</button>' : bar) +
       '<span style="width:44px;font-size:14px;font-weight:300">' + (x.time || (x.type === 'task' ? 'Task' : 'All day')) + '</span><button class="b" data-a="edit" data-id="' + x.id + '" style="text-align:left"><span class="t1" style="font-size:15px">' + esc(x.title) + '</span>' + (x.location ? '<span class="t2">' + esc(x.location) + '</span>' : '') + '</button></div>';
   });
@@ -337,6 +337,7 @@ function viewWorkout() {
 }
 
 /* ---------------- Me ---------------- */
+var WISH_GLOW = ['#FF7A2C', '#FFB054', '#FF8A9C', '#8FC2FF', '#C8F27A'];
 function viewMe() {
   var saved = S.wishes.reduce(function (a, w) { return a + (+w.saved || 0); }, 0), cols = ['gold', 'coral', 'sky', 'violet', 'teal'];
   var h = topbar('Me', null, '<a class="circle glass rp" href="#settings" aria-label="Settings">' + ic('gear', 20) + '</a>');
@@ -344,7 +345,7 @@ function viewMe() {
   if (!S.wishes.length) h += '<div class="glass empty">Things you’re saving up for. Add the price and how much you’ve put aside.</div>';
   S.wishes.forEach(function (w, i) {
     var pct = w.price ? Math.min(100, Math.round(w.saved / w.price * 100)) : 0, ready = w.price && w.saved >= w.price;
-    h += '<button class="aura a-' + cols[i % cols.length] + ' rp" data-a="editWish" data-id="' + w.id + '" style="display:block;width:100%;padding:14px 20px;margin-bottom:8px;text-align:left"><span style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span style="font-size:17px">' + esc(w.name) + '</span><span style="font-size:15px;font-weight:300">' + baht(w.price) + '</span></span><span class="bar" style="display:block"><i style="width:' + pct + '%"></i></span>' +
+    h += '<button class="wishg rp" data-a="editWish" data-id="' + w.id + '" style="--g:' + WISH_GLOW[i % WISH_GLOW.length] + '"><span style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span style="font-size:17px">' + esc(w.name) + '</span><span style="font-size:15px;font-weight:300">' + baht(w.price) + '</span></span><span class="bar" style="display:block"><i style="width:' + pct + '%"></i></span>' +
       '<span style="display:flex;justify-content:space-between;align-items:center;margin-top:7px"><span style="font-size:12.5px;font-weight:300">' + (ready ? 'All saved' : baht(w.saved) + ' saved · ' + baht(w.price - w.saved) + ' to go') + '</span>' + (ready ? '<span class="chip" style="height:22px">Ready</span>' : '') + '</span></button>';
   });
   h += '<button class="pill glass rp" data-a="addWish" style="height:54px">' + ic('plus', 18, 'stroke-width:2') + 'Add to wishlist</button>';
