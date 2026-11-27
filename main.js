@@ -212,7 +212,7 @@ var A = {
   },
   addPill: function () { pillSheet(); },
   editPill: function (el) { pillSheet(byId(S.pills, el.dataset.id)); },
-  takePill: function (el) { var d = today(); S.pillLog[d] = S.pillLog[d] || {}; S.pillLog[d][el.dataset.id] = !S.pillLog[d][el.dataset.id]; save(); rerender(); },
+  takePill: function (el) { var d = today(); S.pillLog[d] = S.pillLog[d] || {}; S.pillLog[d][el.dataset.id] = !S.pillLog[d][el.dataset.id]; V.popped = el.dataset.id; save(); rerender(); setTimeout(function () { V.popped = null; }, 500); },
   addWork: function () { workSheet(); },
   editWork: function (el) { workSheet(byId(S.workouts, el.dataset.id)); },
   addWish: function () { wishSheet(); },

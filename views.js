@@ -248,7 +248,7 @@ function viewPills() {
     h += '<div class="label" style="margin:14px 10px 6px"><span>' + sl[1] + '</span><span>' + (S.settings.push ? 'Reminder on' : '') + '</span></div>';
     ps.forEach(function (p) {
       var on = !!log[p.id], c = PILL_COLORS[p.color % PILL_COLORS.length];
-      h += '<div class="pcap glass' + (on ? ' on' : '') + '"><button class="sph rp" data-a="takePill" data-id="' + p.id + '" aria-pressed="' + on + '" aria-label="' + (on ? 'Taken' : 'Mark as taken') + '" style="--c1:' + c[0] + ';--c2:' + c[1] + '">' + ic('check') + '</button>' +
+      h += '<div class="pcap glass' + (on ? ' on' : '') + '"><button class="capw rp" data-a="takePill" data-id="' + p.id + '" aria-pressed="' + on + '" aria-label="' + (on ? p.name + ', taken' : 'Mark ' + p.name + ' as taken') + '" style="--c1:' + c[0] + ';--c2:' + c[1] + ';border-radius:20px"><span class="cap' + (V.popped === p.id && on ? ' pop' : '') + '"><span class="half"></span><span class="liq"></span><span class="seam"></span><span class="shine"></span></span><span class="badge">' + ic('check') + '</span></button>' +
         '<button class="b" data-a="editPill" data-id="' + p.id + '" style="flex:1;min-width:0;text-align:left"><span style="display:flex;align-items:center;gap:8px"><span class="chip">' + esc(p.name) + '</span><span style="font-size:12px;font-weight:300;color:var(--muted)">' + p.time + '</span></span>' + (p.how ? '<span style="display:block;font-size:12px;font-weight:300;color:var(--muted);margin-top:6px">' + esc(p.how) + '</span>' : '') + '<span style="display:block;font-size:22px;font-weight:200;line-height:1.1;margin-top:' + (p.how ? 0 : 6) + 'px">' + esc(p.dose) + '</span></button></div>';
     });
   });

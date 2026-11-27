@@ -71,7 +71,7 @@ function nextEvent() {
 }
 
 /* ---------- wellness ---------- */
-var PILL_COLORS = [['#FFD36A', '#E59A2E'], ['#F59AA8', '#C9566E'], ['#9FD9A8', '#3E9D63'], ['#A9B6FF', '#5E68D6'], ['#FFB58A', '#E0703E'], ['#C9A6F5', '#8656C9']];
+var PILL_COLORS = [['#FFE07A', '#F2A93B'], ['#FFB3C1', '#E06A86'], ['#B8F0C4', '#4FB673'], ['#C8C4FF', '#7A72E8'], ['#FFC79A', '#E8834A'], ['#D9C2FF', '#9A6BE0']];
 var SLOTS = [['morning', 'Morning', '08:00'], ['noon', 'Noon', '12:00'], ['evening', 'Evening', '19:00'], ['bedtime', 'Bedtime', '22:30']];
 function pillsTaken(s) { var l = S.pillLog[s] || {}; return S.pills.filter(function (p) { return l[p.id]; }).length; }
 function sleepMinutes(e) { var b = toMin(e.bed), w = toMin(e.wake); var m = w - b; if (m <= 0) m += 1440; return m; }
