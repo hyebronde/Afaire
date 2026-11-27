@@ -316,7 +316,7 @@ function resizeImage(file, max) {
 }
 
 /* ---------------- start ---------------- */
-var APP_VERSION = '1.8';
+var APP_VERSION = '1.9';
 if ('serviceWorker' in navigator) {
   var swReg = null, reloaded = false;
   navigator.serviceWorker.register('sw.js').then(function (r) { swReg = r; r.update(); }).catch(function () {});

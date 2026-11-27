@@ -64,11 +64,10 @@ function agendaRows(s) {
   return h;
 }
 function viewToday() {
-  var t = today(), sel = V.calSel, sd = parseYmd(sel), mode = V.wmode || 'w', dn = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  var t = today(), sel = V.calSel, sd = parseYmd(sel), mode = 'w', dn = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   var has = function (d) { return itemsOn(d).length > 0; };
   var h = '<section class="wh" aria-label="Calendar" style="' + toneStyle(dayTone(sel)) + '">';
-  h += '<div class="hd"><div class="sg" role="group" aria-label="View"><button class="rp' + (mode === 'w' ? ' on' : '') + '" data-a="wmode" data-v="w" aria-pressed="' + (mode === 'w') + '">Weekly</button><button class="rp' + (mode === 'm' ? ' on' : '') + '" data-a="wmode" data-v="m" aria-pressed="' + (mode === 'm') + '">Monthly</button></div>' +
-    '<button class="ib rp" data-a="toToday" aria-label="Go to today">' + ic('cal', 20) + '</button></div>';
+  h += '<div class="hd"><span class="rl">' + (sel === t ? 'Today' : relDay(sel)) + ' · ' + sd.getFullYear() + '</span>' + (sel !== t ? '<button class="tb rp" data-a="toToday">Back to today</button>' : '') + '<button class="ib rp" data-a="toToday" aria-label="Go to today">' + ic('cal', 20) + '</button></div>';
   if (mode === 'w') {
     h += '<div class="big"><span>' + MONTHS[sd.getMonth()] + '</span><span>' + sd.getDate() + '</span></div>';
     var wd = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -128,7 +127,8 @@ function viewPlan() {
   var p = V.planTab, key = periodKey(p), list = tasksFor(p, key), t = today();
   var titles = { day: fmtLong(t), week: fmtMD(mondayOf(t)) + ' – ' + fmtMD(addDays(mondayOf(t), 6)), month: MONTHS[+t.slice(5, 7) - 1], year: t.slice(0, 4) };
   var ph = { day: 'Add a task for today', week: 'Add a task for this week', month: 'Add a task for this month', year: 'Add a goal for this year' };
-  var h = topbar('Plan', null, '<a class="circle glass rp" href="#calendar" aria-label="Calendar">' + ic('cal', 20) + '</a>');
+  var h = '';
+  h += planMonth();
   h += '<div class="seg glass mt16">' + ['day', 'week', 'month', 'year'].map(function (k) { return '<button class="rp' + (k === p ? ' on' : '') + '" data-a="tab" data-v="' + k + '" aria-pressed="' + (k === p) + '">' + k.charAt(0).toUpperCase() + k.slice(1) + '</button>'; }).join('') + '</div>';
   h += '<form class="quick glass mt" data-f="quick"><label class="sr" for="qt">New task</label><input id="qt" name="t" placeholder="' + ph[p] + '" autocomplete="off" enterkeyhint="done"><button class="circle dark rp" style="width:44px;height:44px" aria-label="Add task">' + ic('plus', 20, 'stroke-width:2') + '</button></form>';
   var left = list.filter(function (x) { return !x.done; }).length;
@@ -140,6 +140,26 @@ function viewPlan() {
     h += '<div class="row' + (x.done ? ' done' : '') + '"><button class="rp" data-a="toggle" data-id="' + x.id + '" aria-pressed="' + !!x.done + '" aria-label="Done">' + ck(x.done) + '</button><button class="b" data-a="edit" data-id="' + x.id + '"><span class="t1">' + esc(x.title) + '</span>' + (sub ? '<span class="t2">' + esc(sub) + '</span>' : '') + '</button></div>';
   });
   return h + '</div>';
+}
+
+var MONTH_TONES = [['#1E2F6B', '#2A2050', '#7FA0E0', '#A7C0EA'], ['#6B2440', '#4A1A35', '#E08AA8', '#D9A0C0'], ['#23432F', '#1A3326', '#9CC3AE', '#C2D9A8'], ['#7A3A3A', '#5A2B3A', '#F0A890', '#F2C2C8'],
+  ['#6E3A20', '#5A281E', '#E0965A', '#D68C50'], ['#134A50', '#1A3A48', '#6FC0C0', '#A0D8C8'], ['#4A1A5A', '#351848', '#C77AD0', '#9A80E0'], ['#6A4A10', '#5A3A18', '#E8C060', '#D8A040'],
+  ['#3E4220', '#2E3218', '#B8B878', '#C8A868'], ['#6A2A12', '#4A2010', '#E07A40', '#C8603A'], ['#4A2A40', '#382030', '#C08AA8', '#A890C8'], ['#1E3A2A', '#4A1A20', '#8FB39D', '#D07070']];
+function planMonth() {
+  var mk = V.calMonth, y = +mk.slice(0, 4), m = +mk.slice(5, 7) - 1, first = new Date(y, m, 1), t = today(), sel = V.calSel;
+  var st = first.getDay(), days = new Date(y, m + 1, 0).getDate();
+  var h = '<section class="pm" aria-label="Month">';
+  h += '<div class="pmh"><div><div class="py">' + y + '</div><h1 class="pmo">' + MONTHS[m] + '</h1></div><div class="pmr"><div class="pn">' + (m + 1) + '</div><div class="pnv"><button class="rp" data-a="mon" data-v="-1" aria-label="Previous month">' + ic('left', 16) + '</button><button class="rp" data-a="mon" data-v="1" aria-label="Next month">' + ic('chev', 16) + '</button></div></div></div>';
+  h += '<div class="pmb"><i class="blob" style="--c1:' + MONTH_TONES[m][0] + ';--c2:' + MONTH_TONES[m][1] + ';--c3:' + MONTH_TONES[m][2] + ';--c4:' + MONTH_TONES[m][3] + '"></i><div class="pg">' + ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat'].map(function (x) { return '<span class="pd">' + x + '</span>'; }).join('');
+  for (var k = 0; k < st; k++) h += '<span></span>';
+  for (var n = 1; n <= days; n++) {
+    var s = y + '-' + pad(m + 1) + '-' + pad(n), its = itemsOn(s), lab = its.length ? its[0].title : '';
+    h += '<button class="rp' + (its.length ? ' has' : '') + (s === t ? ' td' : '') + (s === sel ? ' on' : '') + '" data-a="day" data-v="' + s + '" aria-label="' + fmtLong(s) + (its.length ? ', ' + its.length + ' planned' : '') + '"><b>' + n + '</b><small>' + esc(lab) + '</small></button>';
+  }
+  h += '</div></div></section>';
+  var list = itemsOn(sel);
+  h += '<div class="glass list mt"><div class="label" style="margin:6px 10px 4px"><span>' + (sel === t ? 'Today · ' : '') + fmtLong(sel) + '</span><button class="chip rp" data-a="addOn" data-v="' + sel + '">' + ic('plus', 14, 'stroke-width:2.2') + 'Add</button></div>' + agendaRows(sel) + '</div>';
+  return h;
 }
 
 /* ---------------- Calendar ---------------- */
