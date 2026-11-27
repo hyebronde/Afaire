@@ -102,6 +102,8 @@ function itemSheet(it, onSave, onDelete) {
   b += '<div data-show="task"' + (type === 'task' ? '' : ' class="hide"') + '>' + fld('List', sel('period', [['day', 'Day'], ['week', 'This week'], ['month', 'This month'], ['year', 'This year']], it.period || 'day')) + '</div>';
   b += fld('Reminder', sel('remind', REMIND, it.remind == null ? '' : it.remind));
   b += fld('Note', '<textarea class="inp" name="note" placeholder="Optional">' + esc(it.note || '') + '</textarea>');
+  var lk = String((it.note || '') + ' ' + (it.location || '')).match(/https?:\/\/[^\s<>"']+/);
+  if (lk) b += '<a class="chip rp" href="' + esc(lk[0]) + '" target="_blank" rel="noopener" style="margin:2px 0 10px;height:34px;padding:0 14px">' + ic('chev', 14, 'stroke-width:2.2') + 'Open link</a>';
   b += '<button class="pill dark rp">' + ic('check', 18, 'stroke-width:2.2') + 'Save</button>';
   if (onDelete) b += '<button type="button" class="pill rp mt" style="color:#B3413B" data-a="sheetDel">' + ic('trash', 18) + 'Delete</button>';
   openSheet(isNew ? 'New ' + type : 'Edit', b, function (f) {
@@ -316,7 +318,7 @@ function resizeImage(file, max) {
 }
 
 /* ---------------- start ---------------- */
-var APP_VERSION = '2.2';
+var APP_VERSION = '2.3';
 if ('serviceWorker' in navigator) {
   var swReg = null, reloaded = false;
   navigator.serviceWorker.register('sw.js').then(function (r) { swReg = r; r.update(); }).catch(function () {});

@@ -171,6 +171,7 @@ async function parse(body, env) {
     'Thai clock words: "บ่าย 2" = 14:00, "4 โมงเย็น" = 16:00, "2 ทุ่ม" = 20:00, "ตี 2" = 02:00, "เที่ยง" = 12:00, "10 โมง" = 10:00, "6 โมงเช้า" = 06:00.',
     'type "event" = something that happens at a specific date and time (meeting, appointment, flight, class, นัด). type "task" = something to do (ต้องทำ, ซื้อ, ส่ง, จ่าย), possibly with a due date.',
     'Keep titles short and in the same language as the input. Put place in location and extra details in note.',
+    'One appointment is often written over several lines (title, then lines like วัน:, เวลา:, สถานที่:, ลิงค์:). That is ONE event, not several: merge the lines, put links and other details in note.',
     'If a date has no year, choose the next upcoming occurrence. Leave date or time empty when unknown. Return an empty list if nothing is actionable.',
   ].join('\n');
 

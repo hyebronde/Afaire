@@ -156,7 +156,7 @@ function parseText(text, image) {
   if (S.settings.workerUrl) {
     var now = new Date();
     return api('/parse', { text: text, image: image || null, now: ymd(now) + 'T' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ' (' + DAYS[now.getDay()] + ')', tz: Intl.DateTimeFormat().resolvedOptions().timeZone })
-      .then(function (r) { return { items: r.items || [], ai: true }; })
+      .then(function (r) { return { items: tidyAI(text, r.items || []), ai: true }; })
       .catch(function (e) { if (image && !text) throw e; return { items: localParse(text), ai: false, err: e.message }; });
   }
   if (image && !text) return Promise.reject(new Error('Reading pictures needs the AI server. Set it up in Me › Settings.'));
@@ -165,8 +165,44 @@ function parseText(text, image) {
 var TH_DAYS = { 'อาทิตย์': 0, 'จันทร์': 1, 'อังคาร': 2, 'พุธ': 3, 'พฤหัส': 4, 'พฤหัสบดี': 4, 'ศุกร์': 5, 'เสาร์': 6 };
 var EN_DAYS = { sun: 0, sunday: 0, mon: 1, monday: 1, tue: 2, tues: 2, tuesday: 2, wed: 3, wednesday: 3, thu: 4, thur: 4, thurs: 4, thursday: 4, fri: 5, friday: 5, sat: 6, saturday: 6 };
 var TH_MON = { 'ม.ค.': 1, 'มกราคม': 1, 'ก.พ.': 2, 'กุมภาพันธ์': 2, 'มี.ค.': 3, 'มีนาคม': 3, 'เม.ย.': 4, 'เมษายน': 4, 'พ.ค.': 5, 'พฤษภาคม': 5, 'มิ.ย.': 6, 'มิถุนายน': 6, 'ก.ค.': 7, 'กรกฎาคม': 7, 'ส.ค.': 8, 'สิงหาคม': 8, 'ก.ย.': 9, 'กันยายน': 9, 'ต.ค.': 10, 'ตุลาคม': 10, 'พ.ย.': 11, 'พฤศจิกายน': 11, 'ธ.ค.': 12, 'ธันวาคม': 12 };
+var LABEL_RE = /^[^0-9A-Za-z\u0E00-\u0E7F]*(วันที่|วัน|เวลา|ลิงค์|ลิงก์|link|สถานที่|location|place|where|when|date|time|ห้อง|room|zoom|meet|รายละเอียด|details?|note|หมายเหตุ)\s*[:：]/i;
+var URL_RE = /https?:\/\/[^\s<>"']+/gi;
+function blockLines(b) { return b.split(/\n/).map(function (l) { return l.trim(); }).filter(Boolean); }
+function isOneAppointment(lines) { return lines.length > 1 && lines.some(function (l) { return LABEL_RE.test(l); }) && lines.filter(function (l) { return !LABEL_RE.test(l) && !/^https?:\/\//i.test(l); }).length <= 2; }
+function mergeBlock(lines) {
+  var head = lines.filter(function (l) { return !LABEL_RE.test(l) && !/^https?:\/\//i.test(l); }), urls = [], it = { type: 'event', title: '', date: '', time: '', endTime: '', location: '', note: '' };
+  lines.forEach(function (l) {
+    (l.match(URL_RE) || []).forEach(function (u) { urls.push(u); });
+    var lab = l.match(LABEL_RE), body = l.replace(URL_RE, ' ');
+    if (lab && /สถานที่|location|place|where|ห้อง|room/i.test(lab[1])) { it.location = body.replace(LABEL_RE, '').trim(); return; }
+    if (lab && /รายละเอียด|detail|note|หมายเหตุ/i.test(lab[1])) { it.note += (it.note ? '\n' : '') + body.replace(LABEL_RE, '').trim(); return; }
+    var p = parseLine(body.replace(LABEL_RE, ' '));
+    if (!it.date && p.date) it.date = p.date;
+    if (!it.time && p.time) it.time = p.time;
+  });
+  var t = (head[0] || lines[0]).replace(URL_RE, ' ').replace(/^[^0-9A-Za-z\u0E00-\u0E7F]+/, '').replace(/^(นัดหมาย|นัด|appointment|reminder)\s*[:：]?\s*/i, '').trim();
+  if (head[1]) it.note = head[1] + (it.note ? '\n' + it.note : '');
+  if (urls.length) it.note = (it.note ? it.note + '\n' : '') + urls.join('\n');
+  it.title = t || 'Appointment';
+  if (!it.time) it.type = it.date ? 'event' : 'task';
+  return it;
+}
 function localParse(text) {
-  return String(text || '').split(/\n+/).map(function (l) { return l.trim(); }).filter(Boolean).map(parseLine).filter(function (x) { return x.title; });
+  var out = [];
+  String(text || '').split(/\n\s*\n/).forEach(function (b) {
+    var lines = blockLines(b);
+    if (isOneAppointment(lines)) out.push(mergeBlock(lines));
+    else lines.map(function (l) { return parseLine(l.replace(URL_RE, ' ').trim() || l); }).forEach(function (x) { if (x.title) out.push(x); });
+  });
+  return out;
+}
+function tidyAI(text, items) {
+  var blocks = String(text || '').split(/\n\s*\n/).map(blockLines).filter(function (l) { return l.length; });
+  if (blocks.length !== 1 || !isOneAppointment(blocks[0]) || items.length < 2) return items;
+  var m = mergeBlock(blocks[0]), ai = items.filter(function (x) { return x.date || x.time; })[0] || items[0];
+  m.date = m.date || ai.date || ''; m.time = m.time || ai.time || ''; m.endTime = ai.endTime || ''; m.location = m.location || ai.location || '';
+  if (m.time) m.type = 'event';
+  return [m];
 }
 function parseLine(line) {
   var s = ' ' + line + ' ', low = s.toLowerCase(), date = '', time = '', t = today(), m;
