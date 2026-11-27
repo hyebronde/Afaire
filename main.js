@@ -153,6 +153,7 @@ var A = {
   addOn: function (el) { itemSheet({ type: el.dataset.t || 'event', date: el.dataset.v || '' }, function (d) { saveItem(null, d); toast('Added'); }); },
   mon: function (el) { var y = +V.calMonth.slice(0, 4), m = +V.calMonth.slice(5, 7) - 1 + +el.dataset.v; var d = new Date(y, m, 1); V.calMonth = d.getFullYear() + '-' + pad(d.getMonth() + 1); rerender(); },
   day: function (el) { V.calSel = el.dataset.v; rerender(); },
+  toToday: function () { V.calSel = today(); V.calMonth = today().slice(0, 7); rerender(); },
   itype: function (el) {
     var f = el.closest('form'); f.elements.type.value = el.dataset.v;
     f.querySelectorAll('[data-a="itype"]').forEach(function (b) { b.classList.toggle('on', b === el); });

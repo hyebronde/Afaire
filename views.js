@@ -41,28 +41,44 @@ var MOODS = [['calm', 'Calm'], ['happy', 'Happy'], ['excited', 'Excited'], ['str
 var MOOD_DOT = { calm: 'a-sky', happy: 'a-gold', excited: 'a-coral', stressed: 'a-violet' };
 var MOOD_TINT = { calm: '#BFDDEB', happy: '#FFD9A0', excited: '#FFB5A8', stressed: '#D4C9F5' };
 
-/* ---------------- Today ---------------- */
+/* ---------------- Today (planner first) ---------------- */
+function monthGrid(small) {
+  var mk = V.calMonth, y = +mk.slice(0, 4), m = +mk.slice(5, 7) - 1, first = new Date(y, m, 1), t = today();
+  var start = (first.getDay() + 6) % 7, days = new Date(y, m + 1, 0).getDate();
+  var h = '<div class="cal' + (small ? ' sm' : '') + '">' + ['M', 'T', 'W', 'T', 'F', 'S', 'S'].map(function (d) { return '<span class="dw">' + d + '</span>'; }).join('');
+  for (var i = 0; i < start; i++) h += '<span></span>';
+  for (var d = 1; d <= days; d++) {
+    var s = y + '-' + pad(m + 1) + '-' + pad(d), its = itemsOn(s), cls = s === t ? 'today' : its.some(function (x) { return x.type === 'task' && !x.done; }) ? 'tk' : its.length ? 'ev' : '';
+    h += '<button class="rp ' + cls + (s === V.calSel ? ' sel' : '') + '" data-a="day" data-v="' + s + '" aria-label="' + MONTHS[m] + ' ' + d + (its.length ? ', ' + its.length + ' items' : '') + '">' + d + '<small>' + (small ? (its.length ? '•' : '') : (its.length || '')) + '</small></button>';
+  }
+  return h + '</div>';
+}
+function agendaRows(s) {
+  var list = itemsOn(s), h = '';
+  if (!list.length) return '<div class="empty">Nothing planned</div>';
+  list.forEach(function (x) {
+    var bar = x.type === 'task' ? '' : '<i class="dotA ' + (x.time && x.time >= '18:00' ? 'a-violet' : 'a-sky') + '" style="width:4px;height:30px;border-radius:4px;flex:none"></i>';
+    h += '<div class="row' + (x.done ? ' done' : '') + '" style="min-height:52px">' + (x.type === 'task' ? '<button class="rp" data-a="toggle" data-id="' + x.id + '" aria-pressed="' + !!x.done + '" aria-label="Done">' + ck(x.done) + '</button>' : bar) +
+      '<span style="width:44px;font-size:14px;font-weight:300">' + (x.time || (x.type === 'task' ? 'Task' : 'All day')) + '</span><button class="b" data-a="edit" data-id="' + x.id + '" style="text-align:left"><span class="t1" style="font-size:15px">' + esc(x.title) + '</span>' + (x.location ? '<span class="t2">' + esc(x.location) + '</span>' : '') + '</button></div>';
+  });
+  return h;
+}
 function viewToday() {
-  var t = today(), mood = S.moods[t], ne = nextEvent(), bd = S.breath[t] || {}, bc = ['morning', 'midday', 'evening'].filter(function (k) { return bd[k]; }).length;
-  var tasks = tasksFor('day', t).filter(function (x) { return !x.done; });
-  var lastSleep = S.sleep[t] || S.sleep[addDays(t, -1)];
-  var ci = cardOfDay(t), kept = S.kept.indexOf(ci) >= 0;
-  var h = topbar('Today', null, '<a class="rp glass" href="#mood" style="height:40px;padding:0 14px 0 8px;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:300;border-radius:20px"><span class="dotA ' + (mood ? MOOD_DOT[mood.mood] : 'a-sky') + '" style="width:24px;height:24px;border-radius:50%"></span>' + (mood ? MOODS.filter(function (m) { return m[0] === mood.mood; })[0][1] : 'Check in') + '</a>');
+  var t = today(), mood = S.moods[t], y = +V.calMonth.slice(0, 4), m = +V.calMonth.slice(5, 7) - 1;
+  var bd = S.breath[t] || {}, bc = ['morning', 'midday', 'evening'].filter(function (k) { return bd[k]; }).length, slept = S.sleep[t] || S.sleep[addDays(t, -1)];
+  var ci = cardOfDay(t), kept = S.kept.indexOf(ci) >= 0, sel = V.calSel, n = itemsOn(sel).length;
+  var h = topbar('Today', null, '<a class="rp glass" href="#mood" style="height:40px;padding:0 14px 0 8px;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:300;border-radius:20px"><span class="dotA ' + (mood ? MOOD_DOT[mood.mood] : 'a-sky') + '" style="width:24px;height:24px;border-radius:50%"></span>' + (mood ? MOODS.filter(function (x) { return x[0] === mood.mood; })[0][1] : 'Check in') + '</a>');
   h += '<div class="sub">' + fmtLong(t) + '</div>';
-  h += '<button class="flip aura a-violet rp mt16' + (V.flip ? ' on' : '') + '" data-a="flip" aria-label="Today’s card, tap to flip">' +
+  h += '<div class="glass mt16" style="padding:12px 10px 10px"><div style="display:flex;justify-content:space-between;align-items:center;padding:0 6px 8px"><span style="font-size:17px">' + MONTHS[m] + ' <span class="muted" style="font-weight:300">' + y + '</span></span><span style="display:flex;gap:6px">' +
+    (V.calMonth !== t.slice(0, 7) ? '<button class="chip w rp" data-a="toToday" style="height:36px;padding:0 12px;border-radius:18px">Today</button>' : '') +
+    '<button class="circle glass rp" style="width:36px;height:36px" data-a="mon" data-v="-1" aria-label="Previous month">' + ic('left', 16) + '</button><button class="circle glass rp" style="width:36px;height:36px" data-a="mon" data-v="1" aria-label="Next month">' + ic('chev', 16) + '</button></span></div>' + monthGrid(true) + '</div>';
+  h += '<div class="glass list mt"><div class="label" style="margin:6px 10px 4px"><span>' + (sel === t ? 'Today · ' : '') + fmtShort(sel) + ' ' + MON[parseYmd(sel).getMonth()] + (n ? ' · ' + n + ' planned' : '') + '</span><span style="display:flex;align-items:center;gap:8px">' + '<button class="chip rp" data-a="addOn" data-v="' + sel + '">' + ic('plus', 14, 'stroke-width:2.2') + 'Add</button></span></div>' + agendaRows(sel) + '</div>';
+  function chip(href, icon, aura, label, val) { return '<a class="rp glass" href="#' + href + '" style="display:flex;align-items:center;gap:8px;height:56px;padding:0 10px;border-radius:28px"><span class="dotA ' + aura + '" style="width:36px;height:36px;border-radius:50%;display:grid;place-items:center;flex:none;color:#fff">' + ic(icon, 16) + '</span><span style="min-width:0"><span style="display:block;font-size:11px;font-weight:300;color:var(--muted)">' + label + '</span><span style="display:block;font-size:14px;white-space:nowrap">' + val + '</span></span></a>'; }
+  h += '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px">' + chip('breathe', 'wind', 'a-teal', 'Breathe', bc + '/3') + chip('pills', 'pill', 'a-gold', 'Pills', S.pills.length ? pillsTaken(t) + '/' + S.pills.length : 'Add') + chip('sleep', 'moon', 'a-night', 'Sleep', slept ? dur(sleepMinutes(slept)) : 'Log') + '</div>';
+  h += '<button class="flip aura a-violet rp mt' + (V.flip ? ' on' : '') + '" data-a="flip" aria-label="Today’s card, tap to flip">' +
     '<span class="fr"><span class="card-ic">' + ic('spark', 26, 'stroke-width:1.5') + '</span><span><span class="chip">Today’s card</span><span style="display:block;font-size:21px;font-weight:300;margin-top:8px">Tap to turn it over</span></span></span>' +
     '<span class="bk"><span style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span class="chip">Today’s card</span><span data-a="keep" class="chip w" role="button" aria-label="Keep this card">' + (kept ? 'Kept' : 'Keep') + '</span></span><span style="font-size:19px;font-weight:300;line-height:1.3">' + esc(CARDS[ci]) + '</span></span></button>';
-  h += '<div class="grid2 mt">';
-  h += '<a class="tile aura a-sky rp" href="#calendar"><span class="t">Up next</span><span>' + (ne ? big(ne.time) + '<span style="font-size:13px;font-weight:300">' + esc(ne.title) + (ne.date !== t ? ' · ' + relDay(ne.date) : '') + '</span>' : big('Free') + '<span style="font-size:13px;font-weight:300">Nothing coming up</span>') + '</span></a>';
-  h += '<a class="tile round aura a-teal rp" href="#breathe"><span style="font-size:13px;font-weight:300">Breathe</span>' + big(bc + '/3') + '<span style="font-size:12px;font-weight:300">' + (bc === 3 ? 'All done' : SESSIONS.filter(function (s) { return s[0] === currentSession(); })[0][1] + ' next') + '</span></a>';
-  var np = S.pills.filter(function (p) { return !(S.pillLog[t] || {})[p.id]; }).sort(function (a, b) { return a.time < b.time ? -1 : 1; })[0];
-  h += '<a class="tile aura a-gold rp" href="#pills"><span class="t"><span>Pills</span>' + ic('pill', 16) + '</span><span>' + (S.pills.length ? big(pillsTaken(t) + ' of ' + S.pills.length) + '<span style="font-size:13px;font-weight:300">' + (np ? 'Next at ' + np.time : 'All taken') + '</span>' : big('Add') + '<span style="font-size:13px;font-weight:300">your pills</span>') + '</span></a>';
-  h += '<a class="tile aura a-night rp" href="#sleep"><span class="t"><span>Sleep</span>' + ic('moon', 16) + '</span><span>' + (lastSleep ? big(dur(sleepMinutes(lastSleep)).replace(' 00m', 'h').replace('h 0', 'h ')) + '<span style="font-size:13px;font-weight:300">Last night</span>' : big('Log') + '<span style="font-size:13px;font-weight:300">last night</span>') + '</span></a>';
-  h += '</div>';
-  h += '<a class="glass rp mt" href="#plan" style="display:block;padding:12px 10px 6px"><span class="label" style="margin:0 10px 4px"><span>To-do</span><span>' + tasks.length + ' left</span></span>';
-  if (!tasks.length) h += '<span class="empty" style="display:block">All clear for today</span>';
-  tasks.slice(0, 3).forEach(function (x) { h += '<span class="row" style="min-height:46px">' + ck(false) + '<span class="b"><span class="t1" style="font-size:15px">' + esc(x.title) + '</span>' + (x.date && x.date < t ? '<span class="t2">From ' + relDay(x.date) + '</span>' : '') + '</span></span>'; });
-  return h + '</a>';
+  return h;
 }
 
 /* ---------------- Plan ---------------- */
@@ -90,12 +106,7 @@ function viewCalendar() {
   var start = (first.getDay() + 6) % 7, days = new Date(y, m + 1, 0).getDate();
   var h = topbar(MONTHS[m] + ' <small>' + y + '</small>', 'plan', '<div style="display:flex;gap:6px"><button class="circle glass rp" style="width:44px;height:44px" data-a="mon" data-v="-1" aria-label="Previous month">' + ic('left', 18) + '</button><button class="circle glass rp" style="width:44px;height:44px" data-a="mon" data-v="1" aria-label="Next month">' + ic('chev', 18) + '</button></div>');
   h = h.replace('<h1>', '<h1 style="font-size:28px">');
-  h += '<div class="glass mt16" style="padding:14px 10px 12px"><div class="cal">' + ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(function (d) { return '<span class="dw">' + d + '</span>'; }).join('');
-  for (var i = 0; i < start; i++) h += '<span></span>';
-  for (var d = 1; d <= days; d++) {
-    var s = y + '-' + pad(m + 1) + '-' + pad(d), its = itemsOn(s), cls = s === t ? 'today' : its.some(function (x) { return x.type === 'task'; }) ? 'tk' : its.length ? 'ev' : '';
-    h += '<button class="rp ' + cls + (s === V.calSel ? ' sel' : '') + '" data-a="day" data-v="' + s + '" aria-label="' + MONTHS[m] + ' ' + d + (its.length ? ', ' + its.length + ' items' : '') + '">' + d + '<small>' + (its.length || '') + '</small></button>';
-  }
+  h += '<div class="glass mt16" style="padding:14px 10px 12px">' + monthGrid(false).replace(/<\/div>$/, '');
   h += '</div><div class="legend"><span><i style="background:rgba(150,205,180,.6)"></i>Events</span><span><i style="background:rgba(240,170,180,.6)"></i>Task due</span><span><i style="background:var(--lime)"></i>Today</span></div></div>';
   var sel = itemsOn(V.calSel);
   h += '<div class="glass list mt"><div class="label" style="margin:6px 10px 4px"><span>' + (V.calSel === t ? 'Today · ' : '') + fmtLong(V.calSel) + '</span><button class="chip rp" data-a="addOn" data-v="' + V.calSel + '">' + ic('plus', 14, 'stroke-width:2.2') + 'Add</button></div>';
